@@ -1,0 +1,36 @@
+version: "3"
+services:
+  ghost:
+    image: ghost:latest
+    depends_on:
+      - db
+    ports:
+      - 2368:2368
+    environment:
+      database__client: mysql
+      database__connection__host: db
+      database__connection__user: root
+      database__connection__password: password
+      database__connection__database: ghost
+    volumes:
+      - ./docker/.ghost:/var/lib/ghost/content
+    restart: always
+
+  front:
+    image: node:17-alpine
+    working_dir: /app
+    volumes:
+      - ./front:/app
+    ports:
+      - 3000:3000
+    command: /bin/ash -c "yarn && yarn dev"
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - ./docker/.mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
